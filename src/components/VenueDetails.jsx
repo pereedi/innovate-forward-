@@ -1,7 +1,7 @@
 import React from 'react';
-import { Calendar, Clock, MapPin, Building, Ticket, Navigation } from 'lucide-react';
+import { Calendar, Clock, Navigation, ArrowDown } from 'lucide-react';
 
-export default function VenueDetails({ onOpenRegister }) {
+export default function VenueDetails({ onScrollToRegister }) {
   return (
     <section className="section-padding venue-section" id="venue">
       <div className="container">
@@ -15,15 +15,15 @@ export default function VenueDetails({ onOpenRegister }) {
           </p>
         </div>
 
-        {/* Two Column Grid: Info Cards + Map Placeholder */}
+        {/* Two Column Grid: Confirmed Date/Time Logistics + Travel Guide */}
         <div className="venue-details-grid">
           
           {/* Key Event Details Cards */}
-          <div className="venue-info-card-group">
+          <div className="venue-info-card-group venue-confirmed-group">
             <div className="venue-detail-item">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--blue-royal)', marginBottom: '0.4rem' }}>
-                <Calendar size={18} />
-                <span className="venue-detail-label">DATE</span>
+                <Calendar size={20} />
+                <span className="venue-detail-label">EVENT DATE</span>
               </div>
               <div className="venue-detail-value">22 September 2026</div>
               <div className="venue-detail-sub">Tuesday • Full Day Symposium</div>
@@ -31,53 +31,26 @@ export default function VenueDetails({ onOpenRegister }) {
 
             <div className="venue-detail-item">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--blue-royal)', marginBottom: '0.4rem' }}>
-                <Clock size={18} />
-                <span className="venue-detail-label">TIME</span>
+                <Clock size={20} />
+                <span className="venue-detail-label">SYMPOSIUM TIME</span>
               </div>
-              <div className="venue-detail-value">To be announced</div>
-              <div className="venue-detail-sub">Morning check-in schedule coming soon</div>
-            </div>
-
-            <div className="venue-detail-item">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--blue-royal)', marginBottom: '0.4rem' }}>
-                <Building size={18} />
-                <span className="venue-detail-label">VENUE</span>
-              </div>
-              <div className="venue-detail-value">To be announced</div>
-              <div className="venue-detail-sub">Premier tech symposium center</div>
-            </div>
-
-            <div className="venue-detail-item">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--blue-royal)', marginBottom: '0.4rem' }}>
-                <MapPin size={18} />
-                <span className="venue-detail-label">LOCATION</span>
-              </div>
-              <div className="venue-detail-value">To be announced</div>
-              <div className="venue-detail-sub">Accessible central tech corridor</div>
-            </div>
-
-            <div className="venue-detail-item full-width">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--blue-royal)', marginBottom: '0.4rem' }}>
-                <Ticket size={18} />
-                <span className="venue-detail-label">ATTENDANCE & PASSES</span>
-              </div>
-              <div className="venue-detail-value">Registration details coming soon</div>
-              <div className="venue-detail-sub">Early notification passes are currently open for pre-registration</div>
+              <div className="venue-detail-value">9:00 AM – 6:00 PM</div>
+              <div className="venue-detail-sub">Morning check-in & welcome breakfast</div>
             </div>
           </div>
 
-          {/* Interactive Venue / Map Card Placeholder */}
+          {/* Interactive Travel & Directions Notice */}
           <div className="venue-map-placeholder">
             <div className="map-pin-circle">
               <Navigation size={28} />
             </div>
-            <h4>Venue Map & Travel Guide</h4>
+            <h4>Travel & Venue Guidelines</h4>
             <p>
-              Detailed directions, parking information, public transit routes, and virtual access links will be published once the host venue is finalized.
+              Detailed venue directions, parking access, transit routes, and virtual symposium access details will be sent directly to your registered email address.
             </p>
-            <button className="btn-secondary" onClick={onOpenRegister}>
-              <MapPin size={16} />
-              <span>Notify Me When Venue Confirmed</span>
+            <button className="btn-secondary" onClick={onScrollToRegister}>
+              <span>Proceed to Registration Below</span>
+              <ArrowDown size={16} />
             </button>
           </div>
 

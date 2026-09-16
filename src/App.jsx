@@ -3,23 +3,45 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Intro from './components/Intro';
 import WhatToExpect from './components/WhatToExpect';
-import Programme from './components/Programme';
-import Speakers from './components/Speakers';
 import Audience from './components/Audience';
 import VenueDetails from './components/VenueDetails';
+import RegistrationSection from './components/RegistrationSection';
 import FinalCta from './components/FinalCta';
 import Footer from './components/Footer';
-import RegisterModal from './components/RegisterModal';
 import TeaserModal from './components/TeaserModal';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
+import { getFullVisitorTelemetry } from './utils/deviceTelemetry';
+import { logVisitor } from './lib/supabase';
 import './styles/App.css';
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('if_theme') || 'theme-light';
   });
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isTeaserOpen, setIsTeaserOpen] = useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // Log visitor telemetry on initial page landing
+  useEffect(() => {
+    const hasLoggedVisit = sessionStorage.getItem('if_visited_logged');
+    if (!hasLoggedVisit) {
+      sessionStorage.setItem('if_visited_logged', 'true');
+      getFullVisitorTelemetry('landing_page').then((telemetry) => {
+        logVisitor(telemetry);
+      });
+    }
+
+    // Check if user arrived via #analytics or #dashboard URL hash
+    const handleHash = () => {
+      if (window.location.hash === '#analytics' || window.location.hash === '#dashboard') {
+        setIsAnalyticsOpen(true);
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   useEffect(() => {
     document.body.className = theme;
@@ -30,8 +52,12 @@ export default function App() {
     setTheme((prev) => (prev === 'theme-light' ? 'theme-dark' : 'theme-light'));
   };
 
-  const handleOpenRegister = () => setIsRegisterOpen(true);
-  const handleCloseRegister = () => setIsRegisterOpen(false);
+  const handleOpenRegister = () => {
+    const regSection = document.getElementById('register');
+    if (regSection) {
+      regSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const handleOpenTeaser = () => setIsTeaserOpen(true);
   const handleCloseTeaser = () => setIsTeaserOpen(false);
@@ -75,31 +101,41 @@ export default function App() {
         {/* Section 7: What to Expect ("Explore. Experience. Imagine. Build.") */}
         <WhatToExpect onOpenRegister={handleOpenRegister} />
 
-        {/* Section 8: Event Programme ("A Day of Ideas, Discovery & Action.") */}
-        <Programme onOpenRegister={handleOpenRegister} />
-
-        {/* Section 9: Speakers & Facilitators ("Meet the Minds Behind the Ideas.") */}
-        <Speakers onOpenRegister={handleOpenRegister} />
-
-        {/* Section 10: Audience ("Built for Curious Minds and Bold Ideas.") */}
+        {/* Section 8: Audience ("Built for Curious Minds and Bold Ideas.") */}
         <Audience />
 
-        {/* Section 11: Venue & Logistics ("Plan Your Experience.") */}
-        <VenueDetails onOpenRegister={handleOpenRegister} />
+        {/* Section 9: Location & Logistics ("Plan Your Experience.") */}
+        <VenueDetails onScrollToRegister={handleOpenRegister} />
 
-        {/* Section 12: Final CTA ("Your Next Big Idea Could Start Here.") */}
+        {/* Section 10: Embedded 2-Step Registration with KingsChat */}
+        <RegistrationSection />
+
+        {/* Section 11: Final CTA ("Your Next Big Idea Could Start Here.") */}
         <FinalCta onOpenRegister={handleOpenRegister} onShare={handleShare} />
       </main>
 
-      {/* Section 13: Footer */}
-      <Footer />
+      {/* Section 12: Footer */}
+      <Footer 
+        onScrollToRegister={handleOpenRegister} 
+        onOpenAnalytics={() => setIsAnalyticsOpen(true)}
+      />
 
-      {/* Interactive Modals */}
-      <RegisterModal isOpen={isRegisterOpen} onClose={handleCloseRegister} />
+      {/* Video Teaser Modal */}
       <TeaserModal 
         isOpen={isTeaserOpen} 
         onClose={handleCloseTeaser} 
         onOpenRegister={handleOpenRegister}
+      />
+
+      {/* Organizer Analytics & Attendee Telemetry Dashboard */}
+      <AnalyticsDashboard 
+        isOpen={isAnalyticsOpen}
+        onClose={() => {
+          setIsAnalyticsOpen(false);
+          if (window.location.hash === '#analytics' || window.location.hash === '#dashboard') {
+            history.pushState(null, '', window.location.pathname);
+          }
+        }}
       />
 
       {/* Toast feedback */}

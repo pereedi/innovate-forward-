@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mail, Globe, Share2 } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ onOpenAnalytics }) {
   return (
     <footer className="site-footer">
       <div className="container">
@@ -27,9 +27,8 @@ export default function Footer() {
             <ul className="footer-nav-list">
               <li><a href="#about">About Symposium</a></li>
               <li><a href="#experience">The Experience</a></li>
-              <li><a href="#programme">Programme & Schedule</a></li>
-              <li><a href="#speakers">Speakers & Voices</a></li>
-              <li><a href="#venue">Venue & Location</a></li>
+              <li><a href="#venue">Location & Logistics</a></li>
+              <li><a href="#register">Registration</a></li>
             </ul>
           </div>
 
@@ -75,6 +74,14 @@ export default function Footer() {
             <a href="#privacy">Privacy Policy</a>
             <a href="#terms">Terms of Service</a>
             <a href="#conduct">Code of Conduct</a>
+            <button 
+              type="button" 
+              className="footer-admin-link" 
+              onClick={onOpenAnalytics}
+              title="Protected Organizer Analytics & Attendee Telemetry"
+            >
+              🔒 Organizer Analytics
+            </button>
           </div>
         </div>
 
