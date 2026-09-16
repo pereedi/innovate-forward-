@@ -54,11 +54,12 @@ export default function RegistrationSection() {
     email: '',
     phone: '',
     location: '',
-    bringsYou: '',
+    bringsYou: [],
     otherBringsYou: '',
     interests: [],
     otherInterest: '',
     community: '',
+    otherCommunity: '',
     organization: '',
     registeredWithKingsChat: false
   });
@@ -97,7 +98,8 @@ export default function RegistrationSection() {
     "Founders & Entrepreneurs",
     "Students & Researchers",
     "Business & Industry Leaders",
-    "Tech Enthusiasts"
+    "Tech Enthusiasts",
+    "Other"
   ];
 
   // Clear specific error on field change
@@ -110,6 +112,16 @@ export default function RegistrationSection() {
         return updated;
       });
     }
+  };
+
+  // Toggle Motivation Chip (Multi-select)
+  const toggleBringsYou = (option) => {
+    const exists = formData.bringsYou.includes(option);
+    const updated = exists
+      ? formData.bringsYou.filter((item) => item !== option)
+      : [...formData.bringsYou, option];
+
+    handleChange('bringsYou', updated);
   };
 
   // Toggle Interest Pill
@@ -163,9 +175,9 @@ export default function RegistrationSection() {
   const validateStep2 = () => {
     const newErrors = {};
 
-    if (!formData.bringsYou) {
-      newErrors.bringsYou = "Please select what brings you to the symposium";
-    } else if (formData.bringsYou === "Other" && (!formData.otherBringsYou.trim() || formData.otherBringsYou.trim().length < 3)) {
+    if (!formData.bringsYou || formData.bringsYou.length === 0) {
+      newErrors.bringsYou = "Please select what brings you to Innovate Forward conference";
+    } else if (formData.bringsYou.includes("Other") && (!formData.otherBringsYou.trim() || formData.otherBringsYou.trim().length < 3)) {
       newErrors.otherBringsYou = "Please specify your reason (min 3 characters)";
     }
 
@@ -177,6 +189,8 @@ export default function RegistrationSection() {
 
     if (!formData.community) {
       newErrors.community = "Please select your primary community";
+    } else if (formData.community === "Other" && (!formData.otherCommunity.trim() || formData.otherCommunity.trim().length < 2)) {
+      newErrors.otherCommunity = "Please specify your community / background (min 2 characters)";
     }
 
     setErrors(newErrors);
@@ -211,8 +225,18 @@ export default function RegistrationSection() {
       // Gather device telemetry (IP address, OS, Browser, Screen)
       const telemetry = await getFullVisitorTelemetry('registration_form');
       
+      // Format community if custom
+      const formattedCommunity = formData.community === 'Other' && formData.otherCommunity
+        ? `Other (${formData.otherCommunity})`
+        : formData.community;
+
+      const submissionPayload = {
+        ...formData,
+        community: formattedCommunity
+      };
+
       // Save record to Supabase (or fallback store)
-      const result = await saveRegistration(formData, telemetry);
+      const result = await saveRegistration(submissionPayload, telemetry);
 
       if (result.error) {
         setSubmissionError('Unable to complete registration. Please check your connection and try again.');
@@ -239,11 +263,12 @@ export default function RegistrationSection() {
       email: '',
       phone: '',
       location: '',
-      bringsYou: '',
+      bringsYou: [],
       otherBringsYou: '',
       interests: [],
       otherInterest: '',
       community: '',
+      otherCommunity: '',
       organization: '',
       registeredWithKingsChat: false
     });
@@ -469,27 +494,31 @@ export default function RegistrationSection() {
 
                   <form onSubmit={handleSubmit} noValidate>
 
-                    {/* Question 1: What brings you to a tech conference? */}
+                    {/* Question 1: What brings you to Innovate Forward conference? (Multi-select) */}
                     <div className="form-group question-group">
                       <label className="question-label">
                         <Compass size={16} />
-                        <span>What brings you to a tech conference? *</span>
+                        <span>What brings you to Innovate Forward conference? (Select all that apply) *</span>
                       </label>
                       <div className="chips-container">
-                        {bringsYouOptions.map((opt, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            className={`chip-choice-btn ${formData.bringsYou === opt ? 'selected' : ''}`}
-                            onClick={() => handleChange('bringsYou', opt)}
-                          >
-                            <span>{opt}</span>
-                          </button>
-                        ))}
+                        {bringsYouOptions.map((opt, idx) => {
+                          const isSelected = formData.bringsYou.includes(opt);
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              className={`chip-choice-btn ${isSelected ? 'selected' : ''}`}
+                              onClick={() => toggleBringsYou(opt)}
+                            >
+                              <span className="pill-check">{isSelected ? '✓' : '+'}</span>
+                              <span>{opt}</span>
+                            </button>
+                          );
+                        })}
                       </div>
 
                       {/* Custom text field if 'Other' is selected */}
-                      {formData.bringsYou === "Other" && (
+                      {formData.bringsYou.includes("Other") && (
                         <div className="other-input-wrap">
                           <input 
                             type="text"
@@ -594,6 +623,26 @@ export default function RegistrationSection() {
                             <span>{errors.community}</span>
                           </div>
                         )}
+
+                        {/* Custom community input if 'Other' is chosen */}
+                        {formData.community === "Other" && (
+                          <div className="other-input-wrap">
+                            <input 
+                              type="text"
+                              required
+                              placeholder="Please specify your community / background..."
+                              className={errors.otherCommunity ? 'input-error' : ''}
+                              value={formData.otherCommunity}
+                              onChange={(e) => handleChange('otherCommunity', e.target.value)}
+                            />
+                            {errors.otherCommunity && (
+                              <div className="error-message">
+                                <AlertCircle size={13} />
+                                <span>{errors.otherCommunity}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       {/* Organization (Optional) */}
@@ -689,8 +738,22 @@ export default function RegistrationSection() {
                 </div>
                 <div className="summary-line">
                   <span className="summary-key">Community:</span>
-                  <span className="summary-val">{formData.community}</span>
+                  <span className="summary-val">
+                    {formData.community === 'Other' && formData.otherCommunity 
+                      ? `Other (${formData.otherCommunity})` 
+                      : formData.community}
+                  </span>
                 </div>
+                {formData.bringsYou && formData.bringsYou.length > 0 && (
+                  <div className="summary-line">
+                    <span className="summary-key">Motivation:</span>
+                    <span className="summary-val">
+                      {formData.bringsYou
+                        .map((b) => (b === 'Other' && formData.otherBringsYou ? `Other (${formData.otherBringsYou})` : b))
+                        .join(', ')}
+                    </span>
+                  </div>
+                )}
                 {formData.interests && formData.interests.length > 0 && (
                   <div className="summary-line">
                     <span className="summary-key">Interests:</span>

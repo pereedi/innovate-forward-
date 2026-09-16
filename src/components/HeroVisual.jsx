@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import HolographicGlobe from './HolographicGlobe';
-import { Mic, MapPin, Zap } from 'lucide-react';
+import { Mic, Layers, Zap } from 'lucide-react';
 
 export default function HeroVisual({ theme = 'theme-light' }) {
   const card1Ref = useRef(null);
@@ -74,7 +74,7 @@ export default function HeroVisual({ theme = 'theme-light' }) {
           </div>
         </div>
 
-        {/* Card 2: Interactive Venue & Tech Corridor (Top Right) */}
+        {/* Card 2: Interactive Tech Corridor & Innovation Hub (Top Right) */}
         <div 
           ref={card2Ref}
           className="hud-float-card card-venue"
@@ -83,11 +83,11 @@ export default function HeroVisual({ theme = 'theme-light' }) {
         >
           <div className="venue-header">
             <div className="venue-icon-box">
-              <MapPin size={18} />
+              <Layers size={18} />
             </div>
             <div>
-              <div className="venue-title">Central Tech Corridor</div>
-              <div className="venue-sub">[Venue to be announced]</div>
+              <div className="venue-title">Innovation Corridors & Labs</div>
+              <div className="venue-sub">Interactive Hub & Stages</div>
             </div>
           </div>
           <div className="venue-stats">

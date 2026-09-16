@@ -75,7 +75,7 @@ export async function saveRegistration(formData, telemetry = {}) {
     email: formData.email,
     phone: formData.phone,
     location: formData.location,
-    brings_you: formData.bringsYou,
+    brings_you: Array.isArray(formData.bringsYou) ? formData.bringsYou.join(', ') : (formData.bringsYou || ''),
     other_brings_you: formData.otherBringsYou || null,
     interests: formData.interests || [],
     other_interest: formData.otherInterest || null,

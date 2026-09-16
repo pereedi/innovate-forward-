@@ -31,7 +31,7 @@ export default function Navbar({ onOpenRegister, theme, onToggleTheme }) {
         <nav className="navbar-links">
           <a href="#about" className="nav-link">About</a>
           <a href="#experience" className="nav-link">Experience</a>
-          <a href="#venue" className="nav-link">Location & Venue</a>
+          <a href="#venue" className="nav-link">Date & Time</a>
           <a href="#register" className="nav-link">Register</a>
         </nav>
 
@@ -72,7 +72,7 @@ export default function Navbar({ onOpenRegister, theme, onToggleTheme }) {
         <div className="mobile-nav-drawer open">
           <a href="#about" className="mobile-nav-link" onClick={closeMenu}>About</a>
           <a href="#experience" className="mobile-nav-link" onClick={closeMenu}>Experience</a>
-          <a href="#venue" className="mobile-nav-link" onClick={closeMenu}>Location & Venue</a>
+          <a href="#venue" className="mobile-nav-link" onClick={closeMenu}>Date & Time</a>
           <a href="#register" className="mobile-nav-link" onClick={closeMenu}>Register</a>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0' }}>

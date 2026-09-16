@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Play, Calendar, MapPin } from 'lucide-react';
+import { ArrowRight, Play, Calendar } from 'lucide-react';
 import Countdown from './Countdown';
 import HeroVisual from './HeroVisual';
 
@@ -62,15 +62,10 @@ export default function Hero({ onOpenRegister, onOpenTeaser, theme }) {
               <Calendar size={16} />
               <span>22 September 2026</span>
             </div>
-            <div className="meta-divider"></div>
-            <div className="meta-item">
-              <MapPin size={16} />
-              <span className="meta-unconfirmed">[Venue to be confirmed]</span>
-            </div>
           </div>
 
           {/* Prominent Live Countdown Panel */}
-          <Countdown targetDate="2026-09-22T09:00:00" />
+          <Countdown targetDate="2026-09-22T13:00:00" />
 
         </div>
 

@@ -32,15 +32,28 @@ export default function App() {
       });
     }
 
-    // Check if user arrived via #analytics or #dashboard URL hash
-    const handleHash = () => {
-      if (window.location.hash === '#analytics' || window.location.hash === '#dashboard') {
+    // Check if user navigated to /organizeranalytics or hash route
+    const checkAnalyticsRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (
+        path === '/organizeranalytics' || 
+        path === '/organizeranalytics/' ||
+        hash === '#organizeranalytics' ||
+        hash === '#analytics' ||
+        hash === '#dashboard'
+      ) {
         setIsAnalyticsOpen(true);
       }
     };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+
+    checkAnalyticsRoute();
+    window.addEventListener('popstate', checkAnalyticsRoute);
+    window.addEventListener('hashchange', checkAnalyticsRoute);
+    return () => {
+      window.removeEventListener('popstate', checkAnalyticsRoute);
+      window.removeEventListener('hashchange', checkAnalyticsRoute);
+    };
   }, []);
 
   useEffect(() => {
@@ -104,21 +117,18 @@ export default function App() {
         {/* Section 8: Audience ("Built for Curious Minds and Bold Ideas.") */}
         <Audience />
 
-        {/* Section 9: Location & Logistics ("Plan Your Experience.") */}
+        {/* Section 9: Date & Time ("Plan Your Experience.") */}
         <VenueDetails onScrollToRegister={handleOpenRegister} />
 
-        {/* Section 10: Embedded 2-Step Registration with KingsChat */}
-        <RegistrationSection />
-
-        {/* Section 11: Final CTA ("Your Next Big Idea Could Start Here.") */}
+        {/* Section 10: Call to Action ("JOIN THE EXPERIENCE > Your Next Big Idea Could Start Here.") */}
         <FinalCta onOpenRegister={handleOpenRegister} onShare={handleShare} />
+
+        {/* Section 11: Embedded 2-Step Registration with KingsChat */}
+        <RegistrationSection />
       </main>
 
       {/* Section 12: Footer */}
-      <Footer 
-        onScrollToRegister={handleOpenRegister} 
-        onOpenAnalytics={() => setIsAnalyticsOpen(true)}
-      />
+      <Footer />
 
       {/* Video Teaser Modal */}
       <TeaserModal 
@@ -127,13 +137,17 @@ export default function App() {
         onOpenRegister={handleOpenRegister}
       />
 
-      {/* Organizer Analytics & Attendee Telemetry Dashboard */}
+      {/* Organizer Analytics & Attendee Telemetry Dashboard (Route: /organizeranalytics) */}
       <AnalyticsDashboard 
         isOpen={isAnalyticsOpen}
         onClose={() => {
           setIsAnalyticsOpen(false);
-          if (window.location.hash === '#analytics' || window.location.hash === '#dashboard') {
-            history.pushState(null, '', window.location.pathname);
+          if (
+            window.location.pathname.toLowerCase().includes('organizeranalytics') ||
+            window.location.hash.includes('analytics') ||
+            window.location.hash.includes('dashboard')
+          ) {
+            history.pushState(null, '', '/');
           }
         }}
       />

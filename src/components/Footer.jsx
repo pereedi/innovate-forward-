@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mail, Globe, Share2 } from 'lucide-react';
 
-export default function Footer({ onOpenAnalytics }) {
+export default function Footer() {
   return (
     <footer className="site-footer">
       <div className="container">
@@ -27,7 +27,7 @@ export default function Footer({ onOpenAnalytics }) {
             <ul className="footer-nav-list">
               <li><a href="#about">About Symposium</a></li>
               <li><a href="#experience">The Experience</a></li>
-              <li><a href="#venue">Location & Logistics</a></li>
+              <li><a href="#venue">Date & Time</a></li>
               <li><a href="#register">Registration</a></li>
             </ul>
           </div>
@@ -38,7 +38,7 @@ export default function Footer({ onOpenAnalytics }) {
             <div className="footer-contact-info">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Mail size={16} color="var(--blue-royal)" />
-                <span>contact@innovateforward.org</span>
+                <a href="mailto:contact@techandinnovation.net" style={{ color: 'inherit', textDecoration: 'none' }}>contact@techandinnovation.net</a>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Globe size={16} color="var(--blue-royal)" />
@@ -65,23 +65,10 @@ export default function Footer({ onOpenAnalytics }) {
           </div>
         </div>
 
-        {/* Bottom Legal Bar */}
+        {/* Bottom Bar */}
         <div className="footer-bottom-bar">
           <div>
             © 2026 Innovate Forward. All rights reserved. Technology & Digital Innovation Symposium.
-          </div>
-          <div className="footer-legal-links">
-            <a href="#privacy">Privacy Policy</a>
-            <a href="#terms">Terms of Service</a>
-            <a href="#conduct">Code of Conduct</a>
-            <button 
-              type="button" 
-              className="footer-admin-link" 
-              onClick={onOpenAnalytics}
-              title="Protected Organizer Analytics & Attendee Telemetry"
-            >
-              🔒 Organizer Analytics
-            </button>
           </div>
         </div>
 
