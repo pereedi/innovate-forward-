@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, Sparkles, Layers, Users, ArrowRight } from 'lucide-react';
+import { Mic, Sparkles, Layers, Users } from 'lucide-react';
 
 export default function WhatToExpect({ onOpenRegister }) {
   const experiences = [
@@ -7,29 +7,25 @@ export default function WhatToExpect({ onOpenRegister }) {
       keyword: "EXPLORE",
       title: "Keynote Sessions",
       icon: <Mic size={24} />,
-      desc: "Hear ideas, insights, and perspectives from people shaping the technology and innovation landscape.",
-      tag: "Inspiring Vision"
+      desc: "Hear ideas, insights, and perspectives from people shaping the technology and innovation landscape."
     },
     {
       keyword: "EXPERIENCE",
       title: "Innovation Showcase",
       icon: <Sparkles size={24} />,
-      desc: "Discover projects, technologies, and emerging solutions designed to solve real-world problems.",
-      tag: "Live Breakthroughs"
+      desc: "Discover projects, technologies, and emerging solutions designed to solve real-world problems."
     },
     {
       keyword: "IMAGINE",
       title: "Interactive Experiences",
       icon: <Layers size={24} />,
-      desc: "Experience technology through demonstrations, practical activities, and engaging sessions.",
-      tag: "Hands-on Discovery"
+      desc: "Experience technology through demonstrations, practical activities, and engaging sessions."
     },
     {
       keyword: "BUILD",
       title: "Networking & Community",
       icon: <Users size={24} />,
-      desc: "Connect with innovators, professionals, creators, and like-minded people.",
-      tag: "Meaningful Ties"
+      desc: "Connect with innovators, professionals, creators, and like-minded people."
     }
   ];
 
@@ -61,18 +57,6 @@ export default function WhatToExpect({ onOpenRegister }) {
                   </div>
                 </div>
                 <p className="expect-card-desc">{item.desc}</p>
-              </div>
-
-              <div className="expect-card-footer">
-                <span>{item.tag}</span>
-                <button 
-                  className="card-link-btn" 
-                  onClick={onOpenRegister}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--blue-royal)', fontWeight: 700 }}
-                >
-                  <span>Learn more</span>
-                  <ArrowRight size={14} />
-                </button>
               </div>
             </div>
           ))}

@@ -21,11 +21,21 @@ import {
   ArrowUpDown, 
   Sparkles,
   Database,
-  Info
+  Info,
+  ArrowLeft,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { fetchRegistrations, fetchVisitorLogs, isSupabaseConfigured } from '../lib/supabase';
 
-export default function AnalyticsDashboard({ isOpen, onClose }) {
+export default function AnalyticsDashboard({ 
+  isOpen = true, 
+  onClose, 
+  isPageMode = false, 
+  onNavigateHome, 
+  theme = 'theme-light', 
+  onToggleTheme 
+}) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem('if_admin_unlocked') === 'true';
   });
@@ -47,12 +57,12 @@ export default function AnalyticsDashboard({ isOpen, onClose }) {
   // The configured admin password from .env or fallback
   const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'innovate2026';
 
-  // Load data when opened and authenticated
+  // Load data when opened or in page mode and authenticated
   useEffect(() => {
-    if (isOpen && isAuthenticated) {
+    if ((isOpen || isPageMode) && isAuthenticated) {
       loadDashboardData();
     }
-  }, [isOpen, isAuthenticated]);
+  }, [isOpen, isPageMode, isAuthenticated]);
 
   const loadDashboardData = async () => {
     setIsLoading(true);
@@ -92,12 +102,96 @@ export default function AnalyticsDashboard({ isOpen, onClose }) {
     setPasswordInput('');
   };
 
-  if (!isOpen) return null;
+  if (!isOpen && !isPageMode) return null;
 
   // ============================================================================
   // PASSWORD-ONLY LOCK SCREEN VIEW
   // ============================================================================
   if (!isAuthenticated) {
+    if (isPageMode) {
+      return (
+        <div className={`analytics-page-root ${theme}`}>
+          <header className="analytics-page-topbar">
+            <div className="container analytics-page-topbar-inner">
+              <div className="topbar-brand">
+                <a href="/" onClick={(e) => { e.preventDefault(); if (onNavigateHome) onNavigateHome(); else if (onClose) onClose(); }}>
+                  <img src="/logo.png" alt="Innovate Forward" className="analytics-topbar-logo" />
+                </a>
+                <span className="analytics-topbar-title">Organizer Portal</span>
+              </div>
+              <div className="topbar-right-actions">
+                {onToggleTheme && (
+                  <button className="theme-toggle-btn" onClick={onToggleTheme} aria-label="Toggle Theme">
+                    {theme === 'theme-dark' ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
+                )}
+                <button className="btn-secondary btn-back-home" onClick={onNavigateHome || onClose}>
+                  <ArrowLeft size={16} />
+                  <span>Return to Main Site</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="analytics-page-lock-wrapper">
+            <div className="analytics-lock-dialog">
+              <div className="lock-icon-circle">
+                <Lock size={32} />
+              </div>
+
+              <h2 className="lock-title">Organizer Analytics</h2>
+              <p className="lock-subtitle">
+                Enter your organizer password to assess attendees, registrations, and visitor telemetry.
+              </p>
+
+              <form onSubmit={handleUnlock} className={`lock-form ${isShaking ? 'shake-animation' : ''}`}>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label htmlFor="admin-pass-input" style={{ fontSize: '0.82rem', fontWeight: 700 }}>
+                    Admin Password (No username required)
+                  </label>
+                  <input 
+                    id="admin-pass-input"
+                    type="password"
+                    required
+                    autoFocus
+                    placeholder="Enter password..."
+                    value={passwordInput}
+                    onChange={(e) => {
+                      setPasswordInput(e.target.value);
+                      if (authError) setAuthError('');
+                    }}
+                    className={authError ? 'input-error' : ''}
+                  />
+                  {authError && (
+                    <div className="error-message" style={{ marginTop: '0.4rem' }}>
+                      <span>{authError}</span>
+                    </div>
+                  )}
+                </div>
+
+                <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                  <Unlock size={16} />
+                  <span>Unlock Dashboard</span>
+                </button>
+              </form>
+
+              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  style={{ width: '100%', justifyContent: 'center' }}
+                  onClick={onNavigateHome || onClose}
+                >
+                  <ArrowLeft size={15} />
+                  <span>Back to Innovate Forward</span>
+                </button>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+
     return (
       <div className="analytics-modal-backdrop" onClick={onClose}>
         <div className="analytics-lock-dialog" onClick={(e) => e.stopPropagation()}>
@@ -211,6 +305,7 @@ export default function AnalyticsDashboard({ isOpen, onClose }) {
     const headers = [
       "ID",
       "Registration Date (UTC)",
+      "Title",
       "First Name",
       "Last Name",
       "Email",
@@ -234,6 +329,7 @@ export default function AnalyticsDashboard({ isOpen, onClose }) {
     const rows = registrations.map(r => [
       `"${r.id || ''}"`,
       `"${r.created_at || ''}"`,
+      `"${(r.title || '').replace(/"/g, '""')}"`,
       `"${(r.first_name || '').replace(/"/g, '""')}"`,
       `"${(r.last_name || '').replace(/"/g, '""')}"`,
       `"${(r.email || '').replace(/"/g, '""')}"`,
@@ -264,50 +360,10 @@ export default function AnalyticsDashboard({ isOpen, onClose }) {
     document.body.removeChild(link);
   };
 
-  return (
-    <div className="analytics-modal-backdrop" onClick={onClose}>
-      <div className="analytics-dashboard-dialog" onClick={(e) => e.stopPropagation()}>
-        
-        {/* Top Navigation Bar */}
-        <div className="dashboard-topbar">
-          <div className="topbar-left">
-            <div className="dashboard-title-group">
-              <span className="live-status-badge">
-                <span className="pulsing-dot"></span>
-                LIVE TELEMETRY
-              </span>
-              <h2>Innovate Forward 2026 Analytics</h2>
-            </div>
-            {isSupabaseConfigured ? (
-              <span className="db-badge live">
-                <Database size={13} />
-                <span>Supabase Connected</span>
-              </span>
-            ) : (
-              <span className="db-badge preview" title="Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env for cloud sync">
-                <Info size={13} />
-                <span>Local Session Store</span>
-              </span>
-            )}
-          </div>
-
-          <div className="topbar-actions">
-            <button className="btn-action-small" onClick={loadDashboardData} disabled={isLoading} title="Refresh Live Data">
-              <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
-              <span>Refresh</span>
-            </button>
-            <button className="btn-action-small btn-lock-small" onClick={handleLock} title="Lock Dashboard">
-              <Lock size={15} />
-              <span>Lock</span>
-            </button>
-            <button className="modal-close-btn" onClick={onClose} aria-label="Close Dashboard">
-              <X size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Executive KPI Stat Cards */}
-        <div className="dashboard-kpi-grid">
+  const renderDashboardInner = () => (
+    <>
+      {/* Executive KPI Stat Cards */}
+      <div className="dashboard-kpi-grid">
           <div className="kpi-card">
             <div className="kpi-icon-wrap blue">
               <Eye size={20} />
@@ -466,7 +522,10 @@ export default function AnalyticsDashboard({ isOpen, onClose }) {
                         >
                           <td>
                             <div className="attendee-name-cell">
-                              <span className="attendee-name">{attendee.first_name} {attendee.last_name}</span>
+                              <span className="attendee-name">
+                                {attendee.title && <span className="attendee-title-badge">{attendee.title}</span>}
+                                {attendee.title ? ' ' : ''}{attendee.first_name} {attendee.last_name}
+                              </span>
                               {attendee.organization && (
                                 <span className="attendee-org">{attendee.organization}</span>
                               )}
@@ -677,143 +736,265 @@ export default function AnalyticsDashboard({ isOpen, onClose }) {
             </div>
           </div>
         )}
+    </>
+  );
 
-        {/* ====================================================================
-            ATTENDEE DETAIL INSPECTOR MODAL (100% OF INVITEE DATA)
-            ==================================================================== */}
-        {selectedAttendee && (
-          <div className="attendee-inspector-backdrop" onClick={() => setSelectedAttendee(null)}>
-            <div className="attendee-inspector-dialog" onClick={(e) => e.stopPropagation()}>
-              <div className="inspector-header">
-                <div className="inspector-title-group">
-                  <span className="inspector-badge">INVITEE DOSSIER</span>
-                  <h3>{selectedAttendee.first_name} {selectedAttendee.last_name}</h3>
-                  <span className="inspector-id">ID: {selectedAttendee.id}</span>
-                </div>
-                <button className="modal-close-btn" onClick={() => setSelectedAttendee(null)}>
-                  <X size={20} />
-                </button>
-              </div>
+  const renderInspectorModal = () => {
+    if (!selectedAttendee) return null;
+    return (
+      <div className="attendee-inspector-backdrop" onClick={() => setSelectedAttendee(null)}>
+        <div className="attendee-inspector-dialog" onClick={(e) => e.stopPropagation()}>
+          <div className="inspector-header">
+            <div className="inspector-title-group">
+              <span className="inspector-badge">INVITEE DOSSIER</span>
+              <h3>
+                {selectedAttendee.title ? `${selectedAttendee.title} ` : ''}
+                {selectedAttendee.first_name} {selectedAttendee.last_name}
+              </h3>
+              <span className="inspector-id">ID: {selectedAttendee.id}</span>
+            </div>
+            <button className="modal-close-btn" onClick={() => setSelectedAttendee(null)}>
+              <X size={20} />
+            </button>
+          </div>
 
-              <div className="inspector-body">
-                {/* Section 1: Contact & Identity */}
-                <div className="inspector-section">
-                  <h4 className="section-subtitle">Personal & Contact Information</h4>
-                  <div className="inspector-grid">
-                    <div className="inspector-item">
-                      <span className="item-label">Full Name</span>
-                      <span className="item-value">{selectedAttendee.first_name} {selectedAttendee.last_name}</span>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Email Address</span>
-                      <a href={`mailto:${selectedAttendee.email}`} className="item-value link">{selectedAttendee.email}</a>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Phone Number</span>
-                      <a href={`tel:${selectedAttendee.phone}`} className="item-value link">{selectedAttendee.phone}</a>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Location (City, Country)</span>
-                      <span className="item-value">{selectedAttendee.location}</span>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Registration Date & Time</span>
-                      <span className="item-value">
-                        {new Date(selectedAttendee.created_at).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Authentication Method</span>
-                      <span className="item-value">
-                        {selectedAttendee.registered_with_kingschat ? 'KingsChat Quick-Pass' : 'Direct Web Form'}
-                      </span>
-                    </div>
+          <div className="inspector-body">
+            {/* Section 1: Contact & Identity */}
+            <div className="inspector-section">
+              <h4 className="section-subtitle">Personal & Contact Information</h4>
+              <div className="inspector-grid">
+                {selectedAttendee.title && (
+                  <div className="inspector-item">
+                    <span className="item-label">Title</span>
+                    <span className="item-value">{selectedAttendee.title}</span>
                   </div>
+                )}
+                <div className="inspector-item">
+                  <span className="item-label">Full Name</span>
+                  <span className="item-value">
+                    {selectedAttendee.title ? `${selectedAttendee.title} ` : ''}
+                    {selectedAttendee.first_name} {selectedAttendee.last_name}
+                  </span>
                 </div>
-
-                {/* Section 2: Preferences & Community */}
-                <div className="inspector-section">
-                  <h4 className="section-subtitle">Symposium Preferences & Community</h4>
-                  <div className="inspector-grid">
-                    <div className="inspector-item full-span">
-                      <span className="item-label">What brings you to a tech conference?</span>
-                      <span className="item-value highlight">{selectedAttendee.brings_you}</span>
-                      {selectedAttendee.other_brings_you && (
-                        <div className="other-detail-box">
-                          <span className="other-label">Custom Reason:</span>
-                          <span className="other-text">"{selectedAttendee.other_brings_you}"</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="inspector-item full-span">
-                      <span className="item-label">Selected Areas of Interest</span>
-                      <div className="inspector-pills-wrap">
-                        {Array.isArray(selectedAttendee.interests) && selectedAttendee.interests.map((int, i) => (
-                          <span key={i} className="inspector-pill">{int}</span>
-                        ))}
-                      </div>
-                      {selectedAttendee.other_interest && (
-                        <div className="other-detail-box">
-                          <span className="other-label">Custom Specified Interest:</span>
-                          <span className="other-text">"{selectedAttendee.other_interest}"</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="inspector-item">
-                      <span className="item-label">Selected Community</span>
-                      <span className="item-value community-badge">{selectedAttendee.community}</span>
-                    </div>
-
-                    <div className="inspector-item">
-                      <span className="item-label">Organization / Company</span>
-                      <span className="item-value">{selectedAttendee.organization || 'Independent / Not specified'}</span>
-                    </div>
-                  </div>
+                <div className="inspector-item">
+                  <span className="item-label">Email Address</span>
+                  <a href={`mailto:${selectedAttendee.email}`} className="item-value link">{selectedAttendee.email}</a>
                 </div>
-
-                {/* Section 3: Visitor Telemetry */}
-                <div className="inspector-section">
-                  <h4 className="section-subtitle">Visitor Device & Network Telemetry</h4>
-                  <div className="inspector-grid">
-                    <div className="inspector-item">
-                      <span className="item-label">IP Address</span>
-                      <code className="ip-badge">{selectedAttendee.ip_address || 'Unavailable'}</code>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Operating System</span>
-                      <span className="item-value">{selectedAttendee.os_name} {selectedAttendee.os_version}</span>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Browser & Version</span>
-                      <span className="item-value">{selectedAttendee.browser_name} {selectedAttendee.browser_version}</span>
-                    </div>
-                    <div className="inspector-item">
-                      <span className="item-label">Device & Screen</span>
-                      <span className="item-value">{selectedAttendee.device_type} ({selectedAttendee.screen_resolution})</span>
-                    </div>
-                  </div>
+                <div className="inspector-item">
+                  <span className="item-label">Phone Number</span>
+                  <a href={`tel:${selectedAttendee.phone}`} className="item-value link">{selectedAttendee.phone}</a>
                 </div>
-
-              </div>
-
-              <div className="inspector-footer">
-                <button className="btn-secondary" onClick={() => setSelectedAttendee(null)}>
-                  <span>Close Dossier</span>
-                </button>
-                <a 
-                  href={`mailto:${selectedAttendee.email}?subject=Innovate Forward 2026 Confirmation`} 
-                  className="btn-primary"
-                >
-                  <span>Send Confirmation Email</span>
-                  <ExternalLink size={15} />
-                </a>
+                <div className="inspector-item">
+                  <span className="item-label">Location (City, Country)</span>
+                  <span className="item-value">{selectedAttendee.location}</span>
+                </div>
+                <div className="inspector-item">
+                  <span className="item-label">Registration Date & Time</span>
+                  <span className="item-value">
+                    {new Date(selectedAttendee.created_at).toLocaleString()}
+                  </span>
+                </div>
+                <div className="inspector-item">
+                  <span className="item-label">Authentication Method</span>
+                  <span className="item-value">
+                    {selectedAttendee.registered_with_kingschat ? 'KingsChat Quick-Pass' : 'Direct Web Form'}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
 
+            {/* Section 2: Preferences & Community */}
+            <div className="inspector-section">
+              <h4 className="section-subtitle">Symposium Preferences & Community</h4>
+              <div className="inspector-grid">
+                <div className="inspector-item full-span">
+                  <span className="item-label">What brings you to conference?</span>
+                  <span className="item-value highlight">{selectedAttendee.brings_you}</span>
+                  {selectedAttendee.other_brings_you && (
+                    <div className="other-detail-box">
+                      <span className="other-label">Custom Reason:</span>
+                      <span className="other-text">"{selectedAttendee.other_brings_you}"</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="inspector-item full-span">
+                  <span className="item-label">Selected Areas of Interest</span>
+                  <div className="inspector-pills-wrap">
+                    {Array.isArray(selectedAttendee.interests) && selectedAttendee.interests.map((int, i) => (
+                      <span key={i} className="inspector-pill">{int}</span>
+                    ))}
+                  </div>
+                  {selectedAttendee.other_interest && (
+                    <div className="other-detail-box">
+                      <span className="other-label">Custom Specified Interest:</span>
+                      <span className="other-text">"{selectedAttendee.other_interest}"</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="inspector-item">
+                  <span className="item-label">Selected Community</span>
+                  <span className="item-value community-badge">{selectedAttendee.community}</span>
+                </div>
+
+                <div className="inspector-item">
+                  <span className="item-label">Organization / Company</span>
+                  <span className="item-value">{selectedAttendee.organization || 'Independent / Not specified'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Visitor Telemetry */}
+            <div className="inspector-section">
+              <h4 className="section-subtitle">Visitor Device & Network Telemetry</h4>
+              <div className="inspector-grid">
+                <div className="inspector-item">
+                  <span className="item-label">IP Address</span>
+                  <code className="ip-badge">{selectedAttendee.ip_address || 'Unavailable'}</code>
+                </div>
+                <div className="inspector-item">
+                  <span className="item-label">Operating System</span>
+                  <span className="item-value">{selectedAttendee.os_name} {selectedAttendee.os_version}</span>
+                </div>
+                <div className="inspector-item">
+                  <span className="item-label">Browser & Version</span>
+                  <span className="item-value">{selectedAttendee.browser_name} {selectedAttendee.browser_version}</span>
+                </div>
+                <div className="inspector-item">
+                  <span className="item-label">Device & Screen</span>
+                  <span className="item-value">{selectedAttendee.device_type} ({selectedAttendee.screen_resolution})</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="inspector-footer">
+            <button className="btn-secondary" onClick={() => setSelectedAttendee(null)}>
+              <span>Close Dossier</span>
+            </button>
+            <a 
+              href={`mailto:${selectedAttendee.email}?subject=Innovate Forward 2026 Confirmation`} 
+              className="btn-primary"
+            >
+              <span>Send Confirmation Email</span>
+              <ExternalLink size={15} />
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // If in dedicated Page Mode: render full-screen standalone page layout
+  if (isPageMode) {
+    return (
+      <div className={`analytics-page-root ${theme}`}>
+        <header className="analytics-page-topbar">
+          <div className="container analytics-page-topbar-inner">
+            <div className="topbar-brand">
+              <a href="/" onClick={(e) => { e.preventDefault(); if (onNavigateHome) onNavigateHome(); else if (onClose) onClose(); }}>
+                <img src="/logo.png" alt="Innovate Forward" className="analytics-topbar-logo" />
+              </a>
+              <div className="topbar-brand-text">
+                <span className="analytics-topbar-title">Organizer Analytics</span>
+                <span className="live-status-badge">
+                  <span className="pulsing-dot"></span>
+                  LIVE TELEMETRY
+                </span>
+              </div>
+            </div>
+
+            <div className="topbar-right-actions">
+              {isSupabaseConfigured ? (
+                <span className="db-badge live">
+                  <Database size={13} />
+                  <span>Supabase Connected</span>
+                </span>
+              ) : (
+                <span className="db-badge preview" title="Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env for cloud sync">
+                  <Info size={13} />
+                  <span>Local Session Store</span>
+                </span>
+              )}
+
+              {onToggleTheme && (
+                <button className="theme-toggle-btn" onClick={onToggleTheme} aria-label="Toggle Theme">
+                  {theme === 'theme-dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+              )}
+
+              <button className="btn-action-small" onClick={loadDashboardData} disabled={isLoading} title="Refresh Live Data">
+                <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
+                <span>Refresh</span>
+              </button>
+
+              <button className="btn-action-small btn-lock-small" onClick={handleLock} title="Lock Dashboard">
+                <Lock size={15} />
+                <span>Lock</span>
+              </button>
+
+              <button className="btn-primary btn-action-small" onClick={onNavigateHome || onClose} title="Return to Main Site">
+                <ArrowLeft size={15} />
+                <span>Main Site</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="container analytics-page-main">
+          {renderDashboardInner()}
+        </main>
+
+        {renderInspectorModal()}
+      </div>
+    );
+  }
+
+  // Otherwise, render modal overlay view
+  return (
+    <div className="analytics-modal-backdrop" onClick={onClose}>
+      <div className="analytics-dashboard-dialog" onClick={(e) => e.stopPropagation()}>
+        <div className="dashboard-topbar">
+          <div className="topbar-left">
+            <div className="dashboard-title-group">
+              <span className="live-status-badge">
+                <span className="pulsing-dot"></span>
+                LIVE TELEMETRY
+              </span>
+              <h2>Innovate Forward 2026 Analytics</h2>
+            </div>
+            {isSupabaseConfigured ? (
+              <span className="db-badge live">
+                <Database size={13} />
+                <span>Supabase Connected</span>
+              </span>
+            ) : (
+              <span className="db-badge preview" title="Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env for cloud sync">
+                <Info size={13} />
+                <span>Local Session Store</span>
+              </span>
+            )}
+          </div>
+
+          <div className="topbar-actions">
+            <button className="btn-action-small" onClick={loadDashboardData} disabled={isLoading} title="Refresh Live Data">
+              <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
+              <span>Refresh</span>
+            </button>
+            <button className="btn-action-small btn-lock-small" onClick={handleLock} title="Lock Dashboard">
+              <Lock size={15} />
+              <span>Lock</span>
+            </button>
+            <button className="modal-close-btn" onClick={onClose} aria-label="Close Dashboard">
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        {renderDashboardInner()}
+        {renderInspectorModal()}
       </div>
     </div>
   );

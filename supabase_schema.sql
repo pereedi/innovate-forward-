@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.registrations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     
     -- Invitee Contact & Personal Info
+    title TEXT,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT NOT NULL,
@@ -129,3 +130,7 @@ USING (true);
 -- ==============================================================================
 COMMENT ON TABLE public.registrations IS 'Innovate Forward 2026 attendee registrations';
 COMMENT ON TABLE public.visitor_logs IS 'Innovate Forward 2026 page & registration visitor telemetry';
+
+-- Schema Migration (Run if table already exists from earlier):
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS title TEXT;
+

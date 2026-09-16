@@ -49,6 +49,7 @@ export default function RegistrationSection() {
 
   // Form State
   const [formData, setFormData] = useState({
+    title: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -66,6 +67,15 @@ export default function RegistrationSection() {
 
   // Validation Error State
   const [errors, setErrors] = useState({});
+
+  // Title Options
+  const titleOptions = [
+    "Pastor",
+    "Deacon",
+    "Deaconess",
+    "Brother",
+    "Sister"
+  ];
 
   // Motivation Options
   const bringsYouOptions = [
@@ -143,6 +153,10 @@ export default function RegistrationSection() {
   // Validate Step 1
   const validateStep1 = () => {
     const newErrors = {};
+
+    if (!formData.title) {
+      newErrors.title = "Please select your title";
+    }
 
     if (!formData.firstName.trim() || formData.firstName.trim().length < 2) {
       newErrors.firstName = "First name is required (min 2 characters)";
@@ -258,6 +272,7 @@ export default function RegistrationSection() {
   // Reset and register another
   const handleReset = () => {
     setFormData({
+      title: '',
       firstName: '',
       lastName: '',
       email: '',
@@ -317,38 +332,35 @@ export default function RegistrationSection() {
                   ============================================================ */}
               {currentStep === 1 && (
                 <div className="reg-step-view step-1-view">
-                  
-                  {/* KingsChat Complete Registration Button */}
-                  <div className="kingschat-banner-wrap">
-                    <button 
-                      type="button" 
-                      className="kingschat-btn"
-                      onClick={handleKingsChatAuth}
-                      title="Quick Registration with KingsChat"
-                    >
-                      <img 
-                        src="/kingschat.png" 
-                        alt="KingsChat Logo" 
-                        className="kc-logo-img" 
-                      />
-                      <span>Complete Registration with KingsChat</span>
-                    </button>
-                    {formData.registeredWithKingsChat && (
-                      <div className="kc-verified-pill">
-                        <CheckCircle2 size={14} />
-                        <span>KingsChat Details Verified</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="reg-divider">
-                    <span>or fill your details manually</span>
-                  </div>
-
                   <form onSubmit={handleNext} noValidate>
                     
-                    {/* Row 1: First Name and Last Name Side by Side */}
-                    <div className="form-two-col-grid">
+                    {/* Row 1: Title, First Name and Last Name */}
+                    <div className="form-name-title-grid">
+                      <div className="form-group form-group-title">
+                        <label htmlFor="reg-title">
+                          <User size={15} />
+                          <span>Title *</span>
+                        </label>
+                        <select 
+                          id="reg-title"
+                          required
+                          className={errors.title ? 'input-error' : ''}
+                          value={formData.title}
+                          onChange={(e) => handleChange('title', e.target.value)}
+                        >
+                          <option value="">-- Title --</option>
+                          {titleOptions.map((titleOpt, idx) => (
+                            <option key={idx} value={titleOpt}>{titleOpt}</option>
+                          ))}
+                        </select>
+                        {errors.title && (
+                          <div className="error-message">
+                            <AlertCircle size={13} />
+                            <span>{errors.title}</span>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="form-group">
                         <label htmlFor="reg-firstName">
                           <User size={15} />
@@ -427,7 +439,7 @@ export default function RegistrationSection() {
                           id="reg-phone"
                           type="tel"
                           required
-                          placeholder="+1 (555) 000-0000"
+                          placeholder="+234 70 5758 5858"
                           className={errors.phone ? 'input-error' : ''}
                           value={formData.phone}
                           onChange={(e) => handleChange('phone', e.target.value)}
@@ -719,11 +731,17 @@ export default function RegistrationSection() {
               <h3 className="success-headline">You're Confirmed for Innovate Forward 2026!</h3>
               
               <p className="success-body-copy">
-                Congratulations, <strong>{formData.firstName} {formData.lastName}</strong>! Your seat has been successfully reserved for the <strong>Technology & Digital Innovation Symposium</strong> on <strong>22 September 2026</strong>.
+                Congratulations, <strong>{formData.title ? `${formData.title} ` : ''}{formData.firstName} {formData.lastName}</strong>! Your seat has been successfully reserved for the <strong>Technology & Digital Innovation Symposium</strong> on <strong>22 September 2026</strong>.
               </p>
 
               {/* Confirmation Details Summary Box */}
               <div className="success-summary-box">
+                {formData.title && (
+                  <div className="summary-line">
+                    <span className="summary-key">Title:</span>
+                    <span className="summary-val">{formData.title}</span>
+                  </div>
+                )}
                 <div className="summary-line">
                   <span className="summary-key">Registered Email:</span>
                   <span className="summary-val">{formData.email}</span>

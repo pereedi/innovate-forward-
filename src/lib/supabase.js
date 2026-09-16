@@ -70,6 +70,7 @@ function setLocalVisitors(logs) {
  */
 export async function saveRegistration(formData, telemetry = {}) {
   const payload = {
+    title: formData.title || null,
     first_name: formData.firstName,
     last_name: formData.lastName,
     email: formData.email,

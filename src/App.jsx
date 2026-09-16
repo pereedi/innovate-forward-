@@ -19,7 +19,17 @@ export default function App() {
     return localStorage.getItem('if_theme') || 'theme-light';
   });
   const [isTeaserOpen, setIsTeaserOpen] = useState(false);
-  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [isAnalyticsPage, setIsAnalyticsPage] = useState(() => {
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    return (
+      path === '/organizeranalytics' || 
+      path === '/organizeranalytics/' ||
+      hash === '#organizeranalytics' ||
+      hash === '#analytics' ||
+      hash === '#dashboard'
+    );
+  });
   const [toastMessage, setToastMessage] = useState('');
 
   // Log visitor telemetry on initial page landing
@@ -36,15 +46,14 @@ export default function App() {
     const checkAnalyticsRoute = () => {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
-      if (
+      const isAnalytics = (
         path === '/organizeranalytics' || 
         path === '/organizeranalytics/' ||
         hash === '#organizeranalytics' ||
         hash === '#analytics' ||
         hash === '#dashboard'
-      ) {
-        setIsAnalyticsOpen(true);
-      }
+      );
+      setIsAnalyticsPage(isAnalytics);
     };
 
     checkAnalyticsRoute();
@@ -55,6 +64,12 @@ export default function App() {
       window.removeEventListener('hashchange', checkAnalyticsRoute);
     };
   }, []);
+
+  const handleNavigateHome = () => {
+    setIsAnalyticsPage(false);
+    history.pushState(null, '', '/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     document.body.className = theme;
@@ -85,6 +100,20 @@ export default function App() {
       setTimeout(() => setToastMessage(''), 3500);
     }
   };
+
+  // If navigated to /organizeranalytics, render as a dedicated standalone full page
+  if (isAnalyticsPage) {
+    return (
+      <div className={`app-root ${theme}`}>
+        <AnalyticsDashboard 
+          isPageMode={true}
+          onNavigateHome={handleNavigateHome}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={`app-root ${theme}`}>
@@ -135,21 +164,6 @@ export default function App() {
         isOpen={isTeaserOpen} 
         onClose={handleCloseTeaser} 
         onOpenRegister={handleOpenRegister}
-      />
-
-      {/* Organizer Analytics & Attendee Telemetry Dashboard (Route: /organizeranalytics) */}
-      <AnalyticsDashboard 
-        isOpen={isAnalyticsOpen}
-        onClose={() => {
-          setIsAnalyticsOpen(false);
-          if (
-            window.location.pathname.toLowerCase().includes('organizeranalytics') ||
-            window.location.hash.includes('analytics') ||
-            window.location.hash.includes('dashboard')
-          ) {
-            history.pushState(null, '', '/');
-          }
-        }}
       />
 
       {/* Toast feedback */}
