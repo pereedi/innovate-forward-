@@ -6,7 +6,8 @@ import {
   User, 
   Mail, 
   Phone, 
-  MapPin, 
+  MapPin,
+  AtSign, 
   Building2, 
   Sparkles, 
   AlertCircle,
@@ -55,6 +56,7 @@ export default function RegistrationSection() {
     email: '',
     phone: '',
     location: '',
+    kingsChatUsername: '',
     bringsYou: [],
     otherBringsYou: '',
     interests: [],
@@ -181,6 +183,10 @@ export default function RegistrationSection() {
       newErrors.location = "Location is required (e.g. City, Country)";
     }
 
+    if (!formData.kingsChatUsername.trim()) {
+      newErrors.kingsChatUsername = "Please enter your KingsChat username";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -285,6 +291,7 @@ export default function RegistrationSection() {
       community: '',
       otherCommunity: '',
       organization: '',
+      kingsChatUsername: '',
       registeredWithKingsChat: false
     });
     setErrors({});
@@ -453,28 +460,52 @@ export default function RegistrationSection() {
                       </div>
                     </div>
 
-                    {/* Row 3: Location Underneath */}
-                    <div className="form-group">
-                      <label htmlFor="reg-location">
-                        <MapPin size={15} />
-                        <span>Location (City, Country) *</span>
-                      </label>
-                      <input 
-                        id="reg-location"
-                        type="text"
-                        required
-                        placeholder="e.g. San Francisco, United States"
-                        className={errors.location ? 'input-error' : ''}
-                        value={formData.location}
-                        onChange={(e) => handleChange('location', e.target.value)}
-                      />
-                      {errors.location && (
-                        <div className="error-message">
-                          <AlertCircle size={13} />
-                          <span>{errors.location}</span>
-                        </div>
-                      )}
-                    </div>
+                    {/* Row 3: Location and KingsChat Username Side by Side */}
+<div className="form-two-col-grid">
+  <div className="form-group">
+    <label htmlFor="reg-location">
+      <MapPin size={15} />
+      <span>Location (City, Country) *</span>
+    </label>
+    <input 
+      id="reg-location"
+      type="text"
+      required
+      placeholder="e.g. San Francisco, United States"
+      className={errors.location ? 'input-error' : ''}
+      value={formData.location}
+      onChange={(e) => handleChange('location', e.target.value)}
+    />
+    {errors.location && (
+      <div className="error-message">
+        <AlertCircle size={13} />
+        <span>{errors.location}</span>
+      </div>
+    )}
+  </div>
+  <div className="form-group">
+    <label htmlFor="reg-kingschat-username">
+      <AtSign size={15} />
+      <span>KingsChat Username *</span> 
+    </label>
+    <input 
+      id="reg-kingschat-username"
+      type="text"
+      required
+      placeholder="e.g. @username"
+      className={errors.kingsChatUsername ? 'input-error' : ''}
+      value={formData.kingsChatUsername}
+      onChange={(e) => handleChange('kingsChatUsername', e.target.value)}
+    />
+    {errors.kingsChatUsername && (
+      <div className="error-message">
+        <AlertCircle size={13} />
+        <span>{errors.kingsChatUsername}</span>
+      </div>
+    )}
+  </div>
+</div>
+
 
                     {/* Step 1 Actions */}
                     <div className="form-actions-row">

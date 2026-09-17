@@ -311,6 +311,7 @@ export default function AnalyticsDashboard({
       "Email",
       "Phone",
       "Location",
+      "KingsChat Username",
       "Community",
       "Organization",
       "Motivation (What Brings You)",
@@ -335,6 +336,7 @@ export default function AnalyticsDashboard({
       `"${(r.email || '').replace(/"/g, '""')}"`,
       `"${(r.phone || '').replace(/"/g, '""')}"`,
       `"${(r.location || '').replace(/"/g, '""')}"`,
+      `"${(r.kingschat_username || '').replace(/"/g, '""')}"`,
       `"${(r.community || '').replace(/"/g, '""')}"`,
       `"${(r.organization || '').replace(/"/g, '""')}"`,
       `"${(r.brings_you || '').replace(/"/g, '""')}"`,
@@ -784,6 +786,12 @@ export default function AnalyticsDashboard({
                   <span className="item-label">Phone Number</span>
                   <a href={`tel:${selectedAttendee.phone}`} className="item-value link">{selectedAttendee.phone}</a>
                 </div>
+                {selectedAttendee.kingschat_username && (
+                  <div className="inspector-item">
+                    <span className="item-label">KingsChat Username</span>
+                    <span className="item-value">@{selectedAttendee.kingschat_username.replace(/^@/, '')}</span>
+                  </div>
+                )}
                 <div className="inspector-item">
                   <span className="item-label">Location (City, Country)</span>
                   <span className="item-value">{selectedAttendee.location}</span>
