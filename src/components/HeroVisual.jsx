@@ -106,7 +106,7 @@ export default function HeroVisual({ theme = 'theme-light' }) {
         >
           <div className="metrics-row">
             <div className="metric-item">
-              <div className="metric-num">2.5K+</div>
+              <div className="metric-num">25K+</div>
               <div className="metric-label">Attendees</div>
             </div>
             <div className="metric-divider"></div>
